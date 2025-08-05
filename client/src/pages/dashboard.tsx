@@ -43,7 +43,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900 dark">
       <div className="max-w-4xl mx-auto">
         <ChatWindow 
           chatHistory={chatHistory}

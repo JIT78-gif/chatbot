@@ -60,6 +60,12 @@ export default function MessageInput({
     onProcessingStart();
 
     try {
+      // Add loading toast
+      toast({
+        title: "Processing video...",
+        description: "Analyzing your video for traffic violations and compliance."
+      });
+
       const analysis = await uploadVideo(file);
       onAnalysisComplete(analysis);
       
@@ -68,9 +74,10 @@ export default function MessageInput({
         description: "Analysis complete. You can now ask questions about the video."
       });
     } catch (error) {
+      console.error('Video upload error:', error);
       toast({
         title: "Upload failed",
-        description: "There was an error uploading your video. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error uploading your video. Please try again.",
         variant: "destructive"
       });
     }
@@ -149,7 +156,7 @@ export default function MessageInput({
 
   return (
     <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-end space-x-3 p-3 bg-white border border-gray-300 rounded-2xl shadow-sm">
+      <form onSubmit={handleSubmit} className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl shadow-sm">
         {/* Attach Button */}
         <div className="relative">
           <Button
@@ -157,26 +164,26 @@ export default function MessageInput({
             variant="ghost"
             size="sm"
             onClick={() => setShowAttachMenu(!showAttachMenu)}
-            className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
             data-testid="button-attach"
           >
             <Plus className="w-4 h-4" />
           </Button>
           
           {showAttachMenu && (
-            <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 min-w-48">
+            <div className="absolute bottom-full left-0 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-2 min-w-48 z-20">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full justify-start text-sm p-2 rounded-md hover:bg-gray-100"
+                className="w-full justify-start text-sm p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
                 disabled={isProcessing}
                 data-testid="button-upload-video"
               >
                 <Video className="w-4 h-4 mr-2" />
                 Upload Video
               </Button>
-              <p className="text-xs text-gray-500 mt-1 px-2">MP4, WebM • Max 2 minutes • Up to 100MB</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">MP4, WebM • Max 2 minutes • Up to 100MB</p>
             </div>
           )}
           
@@ -197,7 +204,7 @@ export default function MessageInput({
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Message Visual Understanding Assistant..."
-            className="resize-none min-h-[20px] max-h-32 border-0 shadow-none focus:ring-0 p-0 text-base"
+            className="resize-none min-h-[24px] max-h-32 border-0 shadow-none focus:ring-0 p-0 text-base bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             rows={1}
             disabled={isLoading || isProcessing}
             data-testid="input-chat-message"
@@ -208,7 +215,7 @@ export default function MessageInput({
         <Button 
           type="submit"
           disabled={!message.trim() || isLoading || isProcessing}
-          className="p-2 rounded-full bg-black hover:bg-gray-800 text-white disabled:bg-gray-300 disabled:text-gray-500"
+          className="p-2 rounded-full bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-100 text-white dark:text-black disabled:bg-gray-300 disabled:text-gray-500 dark:disabled:bg-gray-600 dark:disabled:text-gray-400"
           data-testid="button-send-message"
         >
           <Send className="w-4 h-4" />

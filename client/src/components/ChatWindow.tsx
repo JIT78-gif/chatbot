@@ -100,21 +100,21 @@ export default function ChatWindow({
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
+    <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
             <Video className="text-white w-4 h-4" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900">Visual Understanding Assistant</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Visual Understanding Assistant</h1>
         </div>
         {(videoFile || videoAnalysis) && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
             data-testid="button-reset"
           >
             <RotateCcw className="w-4 h-4 mr-2" />
@@ -130,35 +130,21 @@ export default function ChatWindow({
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-6">
               <Bot className="text-white w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">Visual Understanding Assistant</h2>
-            <p className="text-gray-600 mb-8 text-lg">Upload a video to analyze traffic violations, pedestrian incidents, and compliance monitoring.</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Traffic Analysis</h3>
-                <p className="text-sm text-gray-600">Detect red light violations, speed violations, and traffic flow issues</p>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Compliance Monitoring</h3>
-                <p className="text-sm text-gray-600">Generate compliance scores and violation reports</p>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-2">Interactive Chat</h3>
-                <p className="text-sm text-gray-600">Ask questions about detected events and get detailed explanations</p>
-              </div>
-            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">Visual Understanding Assistant</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">Upload a video to analyze traffic violations, pedestrian incidents, and compliance monitoring.</p>
           </div>
         )}
 
         {videoFile && !videoAnalysis && (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <Video className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <Video className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {isProcessing ? 'Analyzing Video...' : 'Video Uploaded'}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {isProcessing 
                   ? 'Processing your video for compliance violations and traffic incidents' 
                   : `Ready to analyze: ${videoFile.name}`
@@ -167,9 +153,9 @@ export default function ChatWindow({
               {isProcessing && (
                 <div className="mt-4">
                   <div className="flex space-x-1 justify-center">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
                   </div>
                 </div>
               )}
@@ -203,7 +189,7 @@ export default function ChatWindow({
 
       {/* Quick Actions */}
       {videoAnalysis && chatHistory.length > 0 && (
-        <div className="px-4 py-3 border-t border-gray-100">
+        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
           <div className="max-w-3xl mx-auto">
             <div className="flex flex-wrap gap-2">
               {quickActions.map((action) => (
@@ -212,7 +198,7 @@ export default function ChatWindow({
                   variant="secondary"
                   size="sm"
                   onClick={() => handleQuickAction(action)}
-                  className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 h-auto py-2 px-4 rounded-full"
+                  className="text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 h-auto py-2 px-4 rounded-full"
                   data-testid={`button-quick-action-${action.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   {action}
@@ -224,7 +210,7 @@ export default function ChatWindow({
       )}
 
       {/* Message Input */}
-      <div className="border-t border-gray-200 px-4 py-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-4">
         <div className="max-w-3xl mx-auto">
           <MessageInput 
             onMessage={onMessage} 
