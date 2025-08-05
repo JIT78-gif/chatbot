@@ -1,5 +1,6 @@
 import { Bot, User, AlertTriangle } from "lucide-react";
 import { ChatMessage as ChatMessageType } from "@/types/video";
+import FileCard from "./FileCard";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -65,6 +66,22 @@ export default function ChatMessage({ message }: ChatMessageProps) {
             ? 'bg-gray-600 dark:bg-gray-700 text-white rounded-tr-sm' 
             : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-sm'
         }`}>
+          {/* File Attachments */}
+          {message.attachments && message.attachments.length > 0 && (
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2">
+                {message.attachments.map((attachment) => (
+                  <FileCard
+                    key={attachment.id}
+                    file={attachment}
+                    showRemove={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* Message Content */}
           {isUser ? (
             <p className="text-sm">{message.message}</p>
           ) : (

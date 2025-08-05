@@ -36,11 +36,22 @@ export interface VideoAnalysis {
   processedAt: string;
 }
 
+export interface FileAttachment {
+  id: string;
+  file: File;
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
+  thumbnail?: string;
+}
+
 export interface ChatMessage {
   id: string;
   sender: 'user' | 'assistant';
   message: string;
   timestamp: string;
+  attachments?: FileAttachment[];
   metadata?: {
     type?: 'summary' | 'event_details' | 'compliance';
     analysisId?: string;

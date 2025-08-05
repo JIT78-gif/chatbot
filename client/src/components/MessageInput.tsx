@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
-import { Send, Link, Paperclip, Video } from "lucide-react";
+import { Send, Link, Paperclip, Video, Image, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { sendChatMessage, uploadVideo } from "@/lib/api";
-import { VideoAnalysis, ChatMessage } from "@/types/video";
+import { VideoAnalysis, ChatMessage, FileAttachment } from "@/types/video";
+import FileCard from "./FileCard";
 
 interface MessageInputProps {
   onMessage: (message: ChatMessage) => void;
@@ -26,25 +27,35 @@ export default function MessageInput({
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [attachments, setAttachments] = useState<FileAttachment[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const validateFile = (file: File): boolean => {
-    // Check file type
-    if (!['video/mp4', 'video/webm'].includes(file.type)) {
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    const allowedTypes = [
+      'video/mp4', 'video/webm', 'video/quicktime',
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'application/pdf',
+      'text/plain', 'text/csv',
+      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
       toast({
         title: "Invalid file type",
-        description: "Please upload an MP4 or WebM video file.",
+        description: "Please upload a supported file type (video, image, PDF, or document).",
         variant: "destructive"
       });
       return false;
     }
 
-    // Check file size (100MB limit)
-    if (file.size > 100 * 1024 * 1024) {
+    if (file.size > maxSize) {
       toast({
         title: "File too large",
-        description: "Please upload a video smaller than 100MB.",
+        description: "Please upload a file smaller than 100MB.",
         variant: "destructive"
       });
       return false;
@@ -83,12 +94,55 @@ export default function MessageInput({
     }
   };
 
+  const createFileAttachment = (file: File): FileAttachment => {
+    return {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      file,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: URL.createObjectURL(file)
+    };
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleVideoUpload(files[0]);
-      setShowAttachMenu(false);
+    const file = e.target.files?.[0];
+    if (file && validateFile(file)) {
+      if (file.type.startsWith('video/')) {
+        // Handle video upload for analysis
+        handleVideoUpload(file);
+      } else {
+        // Add as attachment
+        const attachment = createFileAttachment(file);
+        setAttachments(prev => [...prev, attachment]);
+      }
     }
+    setShowAttachMenu(false);
+    if (e.target) e.target.value = '';
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && validateFile(file)) {
+      const attachment = createFileAttachment(file);
+      setAttachments(prev => [...prev, attachment]);
+    }
+    setShowAttachMenu(false);
+    if (e.target) e.target.value = '';
+  };
+
+  const handleDocumentSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && validateFile(file)) {
+      const attachment = createFileAttachment(file);
+      setAttachments(prev => [...prev, attachment]);
+    }
+    setShowAttachMenu(false);
+    if (e.target) e.target.value = '';
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments(prev => prev.filter(att => att.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,12 +153,14 @@ export default function MessageInput({
       id: Date.now().toString(),
       sender: 'user',
       message: message.trim(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      attachments: attachments.length > 0 ? attachments : undefined
     };
 
     // Add user message immediately
     onMessage(userMessage);
     setMessage('');
+    setAttachments([]); // Clear attachments after sending
     setIsLoading(true);
 
     try {
@@ -156,6 +212,22 @@ export default function MessageInput({
 
   return (
     <div className="relative">
+      {/* File Attachments Display */}
+      {attachments.length > 0 && (
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-2">
+            {attachments.map((attachment) => (
+              <FileCard
+                key={attachment.id}
+                file={attachment}
+                onRemove={() => removeAttachment(attachment.id)}
+                showRemove={true}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-sm">
         {/* Attach Button */}
         <div className="relative">
@@ -183,17 +255,53 @@ export default function MessageInput({
                 <Video className="w-4 h-4 mr-2" />
                 Upload Video
               </Button>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">MP4, WebM • Max 2 minutes • Up to 100MB</p>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => imageInputRef.current?.click()}
+                className="w-full justify-start text-sm p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                data-testid="button-upload-image"
+              >
+                <Image className="w-4 h-4 mr-2" />
+                Upload Image
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => documentInputRef.current?.click()}
+                className="w-full justify-start text-sm p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+                data-testid="button-upload-document"
+              >
+                <File className="w-4 h-4 mr-2" />
+                Upload Document
+              </Button>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 px-2">Videos, Images, PDFs, Documents • Up to 100MB</p>
             </div>
           )}
           
           <input
             ref={fileInputRef}
             type="file"
-            accept="video/mp4,video/webm"
+            accept="video/mp4,video/webm,video/quicktime"
             onChange={handleFileSelect}
             className="hidden"
             data-testid="input-video-file"
+          />
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+            onChange={handleImageSelect}
+            className="hidden"
+            data-testid="input-image-file"
+          />
+          <input
+            ref={documentInputRef}
+            type="file"
+            accept="application/pdf,text/plain,text/csv,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={handleDocumentSelect}
+            className="hidden"
+            data-testid="input-document-file"
           />
         </div>
 
