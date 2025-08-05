@@ -55,15 +55,15 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className={`flex items-start space-x-3 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
       <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-        isUser ? 'bg-gray-400' : 'bg-primary-600'
+        isUser ? 'bg-gray-600' : 'bg-gradient-to-r from-purple-500 to-blue-500'
       }`}>
         <Icon className="text-white w-4 h-4" />
       </div>
-      <div className="max-w-xs lg:max-w-md">
+      <div className="max-w-2xl">
         <div className={`rounded-2xl px-4 py-3 ${
           isUser 
-            ? 'bg-primary-600 text-white rounded-tr-sm' 
-            : 'bg-gray-100 rounded-tl-sm'
+            ? 'bg-gray-600 text-white rounded-tr-sm' 
+            : 'bg-gray-100 text-gray-800 rounded-tl-sm'
         }`}>
           {isUser ? (
             <p className="text-sm">{message.message}</p>

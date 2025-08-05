@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bot, User } from "lucide-react";
+import { Bot, Video, RotateCcw } from "lucide-react";
 import ChatMessage from "@/components/ChatMessage";
 import MessageInput from "@/components/MessageInput";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,26 @@ import { VideoAnalysis, ChatMessage as ChatMessageType } from "@/types/video";
 interface ChatWindowProps {
   chatHistory: ChatMessageType[];
   videoAnalysis: VideoAnalysis | null;
+  videoFile: File | null;
+  isProcessing: boolean;
   onMessage: (message: ChatMessageType) => void;
+  onVideoUpload: (file: File) => void;
+  onProcessingStart: () => void;
+  onAnalysisComplete: (analysis: VideoAnalysis) => void;
+  onReset: () => void;
 }
 
-export default function ChatWindow({ chatHistory, videoAnalysis, onMessage }: ChatWindowProps) {
+export default function ChatWindow({ 
+  chatHistory, 
+  videoAnalysis, 
+  videoFile, 
+  isProcessing, 
+  onMessage, 
+  onVideoUpload, 
+  onProcessingStart, 
+  onAnalysisComplete, 
+  onReset 
+}: ChatWindowProps) {
   const [isTyping, setIsTyping] = useState(false);
 
   const quickActions = [
@@ -84,74 +100,142 @@ export default function ChatWindow({ chatHistory, videoAnalysis, onMessage }: Ch
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-[calc(100vh-8rem)] flex flex-col">
-      {/* Chat Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">AI Assistant</h3>
-          <div className="flex items-center space-x-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm text-gray-600">Online</span>
+    <div className="flex flex-col h-screen bg-white">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+            <Video className="text-white w-4 h-4" />
           </div>
+          <h1 className="text-xl font-semibold text-gray-900">Visual Understanding Assistant</h1>
         </div>
-        <p className="text-sm text-gray-500 mt-1">Ask questions about the video analysis</p>
+        {(videoFile || videoAnalysis) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onReset}
+            className="text-gray-500 hover:text-gray-700"
+            data-testid="button-reset"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            New Chat
+          </Button>
+        )}
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" data-testid="chat-messages">
-        {chatHistory.length === 0 && !videoAnalysis && (
-          <div className="text-center text-gray-500 mt-8">
-            <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>Upload a video to start the conversation</p>
+      <div className="flex-1 overflow-y-auto px-4" data-testid="chat-messages">
+        {chatHistory.length === 0 && !videoFile && (
+          <div className="flex flex-col items-center justify-center h-full text-center max-w-2xl mx-auto">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-6">
+              <Bot className="text-white w-8 h-8" />
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">Visual Understanding Assistant</h2>
+            <p className="text-gray-600 mb-8 text-lg">Upload a video to analyze traffic violations, pedestrian incidents, and compliance monitoring.</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">Traffic Analysis</h3>
+                <p className="text-sm text-gray-600">Detect red light violations, speed violations, and traffic flow issues</p>
+              </div>
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">Compliance Monitoring</h3>
+                <p className="text-sm text-gray-600">Generate compliance scores and violation reports</p>
+              </div>
+              <div className="p-4 border border-gray-200 rounded-lg">
+                <h3 className="font-medium text-gray-900 mb-2">Interactive Chat</h3>
+                <p className="text-sm text-gray-600">Ask questions about detected events and get detailed explanations</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {videoFile && !videoAnalysis && (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <Video className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {isProcessing ? 'Analyzing Video...' : 'Video Uploaded'}
+              </h3>
+              <p className="text-gray-600">
+                {isProcessing 
+                  ? 'Processing your video for compliance violations and traffic incidents' 
+                  : `Ready to analyze: ${videoFile.name}`
+                }
+              </p>
+              {isProcessing && (
+                <div className="mt-4">
+                  <div className="flex space-x-1 justify-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
         
-        {chatHistory.map((message) => (
-          <ChatMessage key={message.id} message={message} />
-        ))}
-        
-        {isTyping && (
-          <div className="flex items-start space-x-3">
-            <div className="flex-shrink-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <Bot className="text-white w-4 h-4" />
-            </div>
-            <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+        {chatHistory.length > 0 && (
+          <div className="max-w-3xl mx-auto py-6 space-y-6">
+            {chatHistory.map((message) => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            
+            {isTyping && (
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                  <Bot className="text-white w-4 h-4" />
+                </div>
+                <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
 
       {/* Quick Actions */}
-      {videoAnalysis && (
-        <div className="px-4 py-2 border-b border-gray-200">
-          <div className="flex flex-wrap gap-2">
-            {quickActions.map((action) => (
-              <Button
-                key={action}
-                variant="secondary"
-                size="sm"
-                onClick={() => handleQuickAction(action)}
-                className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 h-auto py-1 px-3 rounded-full"
-                data-testid={`button-quick-action-${action.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                {action}
-              </Button>
-            ))}
+      {videoAnalysis && chatHistory.length > 0 && (
+        <div className="px-4 py-3 border-t border-gray-100">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex flex-wrap gap-2">
+              {quickActions.map((action) => (
+                <Button
+                  key={action}
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleQuickAction(action)}
+                  className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 h-auto py-2 px-4 rounded-full"
+                  data-testid={`button-quick-action-${action.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {action}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* Message Input */}
-      <MessageInput 
-        onMessage={onMessage} 
-        videoAnalysis={videoAnalysis}
-        disabled={!videoAnalysis}
-      />
+      <div className="border-t border-gray-200 px-4 py-4">
+        <div className="max-w-3xl mx-auto">
+          <MessageInput 
+            onMessage={onMessage} 
+            videoAnalysis={videoAnalysis}
+            onVideoUpload={onVideoUpload}
+            onProcessingStart={onProcessingStart}
+            onAnalysisComplete={onAnalysisComplete}
+            isProcessing={isProcessing}
+          />
+        </div>
+      </div>
     </div>
   );
 }
