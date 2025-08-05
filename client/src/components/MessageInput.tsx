@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Send, Plus, Paperclip, Video } from "lucide-react";
+import { Send, Link, Paperclip, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -156,7 +156,7 @@ export default function MessageInput({
 
   return (
     <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-2xl shadow-sm">
+      <form onSubmit={handleSubmit} className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl shadow-sm">
         {/* Attach Button */}
         <div className="relative">
           <Button
@@ -167,7 +167,7 @@ export default function MessageInput({
             className="p-2 rounded-full text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
             data-testid="button-attach"
           >
-            <Plus className="w-4 h-4" />
+            <Link className="w-4 h-4" />
           </Button>
           
           {showAttachMenu && (
@@ -203,7 +203,7 @@ export default function MessageInput({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message Visual Understanding Assistant..."
+            placeholder="Message Chat Assistant..."
             className="resize-none min-h-[24px] max-h-32 border-0 shadow-none focus:ring-0 p-0 text-base bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             rows={1}
             disabled={isLoading || isProcessing}

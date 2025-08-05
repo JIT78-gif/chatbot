@@ -107,7 +107,7 @@ export default function ChatWindow({
           <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
             <Video className="text-white w-4 h-4" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Visual Understanding Assistant</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Chat Assistant</h1>
         </div>
         {(videoFile || videoAnalysis) && (
           <Button
@@ -130,8 +130,8 @@ export default function ChatWindow({
             <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mb-6">
               <Bot className="text-white w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">Visual Understanding Assistant</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">Upload a video to analyze traffic violations, pedestrian incidents, and compliance monitoring.</p>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">Chat Assistant</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">How can I help you, Today?</p>
           </div>
         )}
 
